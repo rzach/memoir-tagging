@@ -1,0 +1,127 @@
+% Version without tagging loaded to see what the output should/would be
+
+\DocumentMetadata{
+ lang=en,
+ pdfversion=2.0,
+ pdfstandard=a-4f,
+}
+
+\documentclass{memoir}
+
+% %  Save \@starttoc
+% \makeatletter
+% \let\ori@starttoc\@starttoc
+% \makeatother
+
+% \DeclareDocumentCommand \part {s ={shorttitle}o m}
+%       {\ParseLaTeXeHeading {part} {#1} {#2} {#3}}
+% \DeclareDocumentCommand \chapter {s ={shorttitle}o m}
+%      {\ParseLaTeXeHeading {chapter}{\BooleanTrue} {#2} {#3}}
+
+\usepackage[pdfpagelabels,bookmarks,hyperindex,hyperfigures,hidelinks]{hyperref}
+\hypersetup{pdftitle=Memoir Tagging Test, pdfdisplaydoctitle}
+
+
+% %%% tableofcontents + header.
+% \makeatletter
+% \def\f@rtoc{}
+% % memoir catches in this the optional argument of chapter
+% \def\ch@pt@c{}
+% %restore \@starttoc
+% \let\@starttoc\ori@starttoc
+% \renewcommand\tableofcontents{%
+%   \chapter*{\contentsname}%
+%     \@starttoc{toc}%
+%     }
+% \renewcommand*\l@part[2]{%
+%  \ifnum \c@tocdepth >-2\relax
+%    \addpenalty{-\@highpenalty}%
+%    \addvspace{2.25em \@plus\p@}%
+%    \setlength\@tempdima{3em}%
+%    \begingroup
+%      \parindent \z@ \rightskip \@pnumwidth
+%      \parfillskip -\@pnumwidth
+%      {\leavevmode
+%       \large \bfseries
+%       \UseHookWithArguments{contentsline/text/before}{4}
+%         {\toclevel@part}{#1}{#2}{\@contentsline@destination}%%
+%       \csname contentsline@text@-1@format\endcsname{#1}%
+%       \UseHookWithArguments{contentsline/text/after}{4}
+%         {\toclevel@part}{#1}{#2}{\@contentsline@destination}%%
+%       \hfil
+%       \hb@xt@\@pnumwidth{\hss
+%       \UseHookWithArguments{contentsline/page/before}{4}
+%         {\toclevel@part}{#1}{#2}{\@contentsline@destination}%%
+%       #2%
+%       \UseHookWithArguments{contentsline/page/after}{4}
+%         {\toclevel@part}{#1}{#2}{\@contentsline@destination}%%
+%                          \kern-\p@\kern\p@}}\par
+%       \nobreak
+%    \endgroup
+%  \fi}
+% \renewcommand*\l@chapter[2]{%
+%   \ifnum \c@tocdepth >\m@ne
+%     \addpenalty{-\@highpenalty}%
+%     \vskip 1.0em \@plus\p@
+%     \setlength\@tempdima{1.5em}%
+%     \begingroup
+%       \parindent \z@ \rightskip \@pnumwidth
+%       \parfillskip -\@pnumwidth
+%       \leavevmode \bfseries
+%       \advance\leftskip\@tempdima
+%       \hskip -\leftskip
+%       \UseHookWithArguments{contentsline/text/before}{4}
+%        {\toclevel@chapter}{#1}{#2}{\@contentsline@destination}%
+%       \csname contentsline@text@0@format\endcsname
+%         {#1}%
+%       \UseHookWithArguments{contentsline/text/after}{4}
+%        {\toclevel@chapter}{#1}{#2}{\@contentsline@destination}%
+%        \nobreak\hfil
+%       \nobreak\hb@xt@\@pnumwidth{\hss
+%        \UseHookWithArguments{contentsline/page/before}{4}
+%         {\toclevel@chapter}{#1}{#2}{\@contentsline@destination}%
+%        #2%
+%        \UseHookWithArguments{contentsline/page/after}{4}
+%         {\toclevel@chapter}{#1}{#2}{\@contentsline@destination}%
+%                                  \kern-\p@\kern\p@}\par
+%       \penalty\@highpenalty
+%     \endgroup
+%   \fi}
+% \makeatother
+
+\usepackage{lipsum}
+
+%%% These break with tagging enabled
+
+% \title{Memoir Tagging Test}
+% \author{N. N.}
+% \date{\today}
+
+\begin{document}
+
+\frontmatter
+
+%\maketitle
+
+\chapter{Preface}
+
+\lipsum
+
+\tableofcontents
+
+\mainmatter
+
+\part{Alpha}
+
+\chapter{One}
+
+\section{One.One}
+
+\lipsum
+
+\backmatter
+
+\chapter{Appendix}
+
+\lipsum
+\end{document}
