@@ -3,24 +3,38 @@
  pdfversion=2.0,
  pdfstandard=ua-2,
  pdfstandard=a-4f,
- tagging-setup={math/mathml/luamml/load=false}
+ tagging-setup={math/setup=mathml-SE}
 }
 
-\documentclass{memoir}
 
 %  Save \@starttoc
 \makeatletter
 \let\ori@starttoc\@starttoc
 \makeatother
 
+\documentclass{memoir}
+
 \DeclareDocumentCommand \part {s ={shorttitle}o m}
       {\ParseLaTeXeHeading {part} {#1} {#2} {#3}}
 \DeclareDocumentCommand \chapter {s ={shorttitle}o m}
-     {\ParseLaTeXeHeading {chapter}{\BooleanTrue} {#2} {#3}}
+     {\ParseLaTeXeHeading {chapter} {#1} {#2} {#3}}
 
 \usepackage[pdfpagelabels,bookmarks,hyperindex,hyperfigures,hidelinks]{hyperref}
 \hypersetup{pdftitle=Memoir Tagging Test, pdfdisplaydoctitle}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  adaptions tagging etc
+%%% attributes and tags
+
+% Not sure what this does or if this needs to be adjusted
+\tagpdfsetup
+ {
+  newattribute={sup}{/O /Layout /TextPosition /Sup},
+  add-new-tag=Frontmatter/Sect,
+  add-new-tag=Frontmatter-Title/H1,
+  add-new-tag=Chapter/Sect,
+  add-new-tag=Chapter-Title/H3%,
+ }
 
 %%% tableofcontents + header.
 \makeatletter
@@ -30,8 +44,16 @@
 %restore \@starttoc
 \let\@starttoc\ori@starttoc
 \renewcommand\tableofcontents{%
-  \chapter*{\contentsname}%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+    \chapter*{\contentsname
+        \@mkboth{%
+           \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
     \@starttoc{toc}%
+    \if@restonecol\twocolumn\fi
     }
 \renewcommand*\l@part[2]{%
  \ifnum \c@tocdepth >-2\relax
@@ -87,6 +109,76 @@
       \penalty\@highpenalty
     \endgroup
   \fi}
+
+
+% move the refstepcounter into the spanning head (general memoir issue)
+\def\@chapter[#1]#2{%
+  \m@mpn@new@chaptrue%
+  \m@mpn@new@schapfalse%
+  \def\f@rbdy{#2}%
+  \ifx\ch@pt@c\@empty % no optional args
+    \def\f@rtoc{#2}%
+    \def\f@rhdr{#2}%
+  \else                  % at least one opt arg
+    \let\f@rtoc\ch@pt@c
+    \ifx\@empty#1\@empty
+      \let\f@rhdr\ch@pt@c
+    \else
+      \def\f@rhdr{#1}%
+    \fi
+  \fi
+  \m@m@Andfalse
+  \ifnum \c@secnumdepth >\m@ne
+    \if@mainmatter
+      \m@m@Andtrue
+    \fi
+  \fi
+  \ifm@m@And
+    %\refstepcounter{chapter}%
+  \fi
+  \ifartopt
+    \@makechapterhead{#2}%
+    \@afterheading
+    \chaptermark{\f@rhdr}%
+  \else
+    \chaptermark{\f@rhdr}
+    \insertchapterspace
+    \if@twocolumn
+      \@topnewpage[\ifm@m@And\refstepcounter{chapter}\fi\@makechapterhead{#2}]%
+    \else
+      \ifm@m@And\refstepcounter{chapter}\fi\@makechapterhead{#2}%
+    \fi
+    \@afterheading
+  \fi
+  \@nameuse{chapter@f@rtoc@before@write@hook}%
+  \mempreaddchaptertotochook%
+  \ifm@m@And
+    \ifanappendix
+      \addcontentsline{toc}{appendix}{%
+        \protect\chapternumberline{\thechapter}\f@rtoc}%
+      \memappchapinfo{\thechapter}{\f@rtoc}{\f@rhdr}{#2}%
+    \else
+      \addcontentsline{toc}{chapter}{%
+        \protect\chapternumberline{\thechapter}\f@rtoc}%
+      \memchapinfo{\thechapter}{\f@rtoc}{\f@rhdr}{#2}%
+    \fi
+  \else
+    \addcontentsline{toc}{chapter}{\f@rtoc}%
+    \ifanappendix
+      \memappchapinfo{}{\f@rtoc}{\f@rhdr}{#2}%
+    \else
+      \memchapinfo{}{\f@rtoc}{\f@rhdr}{#2}%
+    \fi
+  \fi
+  \mempostaddchaptertotochook%
+  \ifheadnameref\ExpandArgs{V}\M@gettitle\f@rhdr\else\ExpandArgs{V}\M@gettitle\f@rtoc\fi%
+  \memendofchapterhook%
+}
+
+% uses some internal memoir commands so revert them too
+\def\numberline#1{\hb@xt@\@tempdima{#1\hfil}}  
+\let\chapternumberline\numberline
+\let\partnumberline\numberline
 \makeatother
 
 \usepackage{lipsum}
@@ -111,17 +203,33 @@
 
 \mainmatter
 
-\part{Alpha}
+\part{Part I}
 
-\chapter{One}
+\chapter{Chapter 1}
 
-\section{One.One}
+If $x$ is real, then $x^{2} \geq 0$.
+
+A matrix equation.
+\[
+\begin{pmatrix}0&1\\1&0\end{pmatrix}
+\begin{pmatrix}a&b\\c&d\end{pmatrix}
+=
+\begin{pmatrix}c&d\\a&b\end{pmatrix}
+\]
+
+\section{Section 1.1}
+
+\lipsum
+
+\appendix
+
+\chapter{Appendix}
 
 \lipsum
 
 \backmatter
 
-\chapter{Appendix}
+\chapter{Back Matter}
 
 \lipsum
 \end{document}

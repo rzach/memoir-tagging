@@ -5,21 +5,34 @@
  tagging=on
 }
 
-\documentclass{memoir}
-
 %  Save \@starttoc
 \makeatletter
 \let\ori@starttoc\@starttoc
 \makeatother
 
+\documentclass{memoir}
+
 \DeclareDocumentCommand \part {s ={shorttitle}o m}
       {\ParseLaTeXeHeading {part} {#1} {#2} {#3}}
 \DeclareDocumentCommand \chapter {s ={shorttitle}o m}
-     {\ParseLaTeXeHeading {chapter}{\BooleanTrue} {#2} {#3}}
+     {\ParseLaTeXeHeading {chapter} {#1} {#2} {#3}}
 
 \usepackage[pdfpagelabels,bookmarks,hyperindex,hyperfigures,hidelinks]{hyperref}
 \hypersetup{pdftitle=Memoir Tagging Test, pdfdisplaydoctitle}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  adaptions tagging etc
+%%% attributes and tags
+
+% Not sure what this does or if this needs to be adjusted
+\tagpdfsetup
+ {
+  newattribute={sup}{/O /Layout /TextPosition /Sup},
+  add-new-tag=Frontmatter/Sect,
+  add-new-tag=Frontmatter-Title/H1,
+  add-new-tag=Chapter/Sect,
+  add-new-tag=Chapter-Title/H3%,
+ }
 
 %%% tableofcontents + header.
 \makeatletter
@@ -95,6 +108,7 @@
     \endgroup
   \fi}
 
+
 % move the refstepcounter into the spanning head (general memoir issue)
 \def\@chapter[#1]#2{%
   \m@mpn@new@chaptrue%
@@ -163,7 +177,6 @@
 \def\numberline#1{\hb@xt@\@tempdima{#1\hfil}}  
 \let\chapternumberline\numberline
 \let\partnumberline\numberline
-
 \makeatother
 
 \usepackage{lipsum}
@@ -178,7 +191,7 @@
 
 \frontmatter
 
-% \maketitle
+%\maketitle
 
 \chapter{Preface}
 
@@ -188,17 +201,23 @@
 
 \mainmatter
 
-\part{Alpha}
+\part{Part I}
 
-\chapter{One}
+\chapter{Chapter 1}
 
-\section{One.One}
+\section{Section 1.1}
+
+\lipsum
+
+\appendix
+
+\chapter{Appendix}
 
 \lipsum
 
 \backmatter
 
-\chapter{Appendix}
+\chapter{Back Matter}
 
 \lipsum
 \end{document}
