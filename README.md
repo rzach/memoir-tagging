@@ -62,6 +62,7 @@ Caveats:
 
 ## Sources
 
-- TOC code: required/latex-lab/latex-lab-toc-kernel-changes.dtx
-- Sectioning: https://ctan.mirror.globo.tech/macros/latex-dev/required/latex-lab/latex-lab-sec-template.pdf
+- TOC: https://ctan.org/tex-archive/macros/latex-dev/required/latex-lab/latex-lab-toc.pdf
+- TOC code: https://ctan.org/tex-archive/macros/latex-dev/required/latex-lab/latex-lab-toc-kernel-changes.dtx
+- Sectioning: https://ctan.org/tex-archive/macros/latex-dev/required/latex-lab/latex-lab-sec-template.pdf
 
