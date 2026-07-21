@@ -21,11 +21,47 @@ someone hoping to get memoir to work before it's actually fixed. (This
 will take time since `memoir` is very complex and redefines a lot of
 LaTeX internals.)
 
-I started with the bible example and tried to distill the changes
-needed. It's very minimal; basically right now all it does is it
-changes the TOC, part, and chapter commands. It produces a PDF that
-validates, but has issues, e.g., sections in the TOC aren't
-hyperlinked.
+I've here tried to implement changes in `memoir` directly that add
+tagging support while retaining the functionality of memoir, so do the
+kind of thing that the package maintainer will eventually do.
 
-`memtag-20.tex` is the main file.
+
+`memtag-tagging.cls` is the [`memoir`
+class](https://ctan.org/pkg/memoir) (version 3.8.4b 2025-11-04) with
+minimal changes to improve tagging. The changes are marked by `#tag`
+in comments.
+
+`memoir-XX-BAD.tex` are test files from the [tagging project](https://github.com/latex3/tagging-project/tree/main/tagging-status/testfiles-incompatible/memoir)
+
+Caveats:
+
+- No attempt is made to discern if the class is loaded with tagging
+  support on or off; it assumes it is on.
+- TOC handling inserts tagging sockets
+- `memoir` by default does not link the page numbers. However, the
+  socket `contentsline/page/after` is the one that closes a `TOCI`
+  tag corresponding to a contents line; without it the tags are
+  unbalanced.
+- `\chapter` uses the heading template `chapter`. This breaks the
+  configurability of chapter headings in `memoir`. The template uses
+  the memoir configuration commands as much as I could figure (e.g.,
+  use `\chaptitlefont`) but more sophisticated chapter formats will
+  probably need their own templates.
+- Changes haven't been made for `\book` and `\part`.
+- `memoir`'s `\tableofcontents` directly formats a chapter heading for
+  the TOC, and doesn't call `\chapter*` to do this. I don't know why
+  but also I don't know of a way to get the "Table of Contents" tagged
+  properly otherwise.
+- Getting an error I can't get rid of:
+  ```
+  ! Undefined control sequence.
+  <argument> \ERROR 
+                  \cs_set_eq:NN \__fnote_tmp:w \exp_stop_f: 
+  l.24 \begin{document}
+  ```
+
+## Sources
+
+- TOC code: required/latex-lab/latex-lab-toc-kernel-changes.dtx
+- Sectioning: https://ctan.mirror.globo.tech/macros/latex-dev/required/latex-lab/latex-lab-sec-template.pdf
 
