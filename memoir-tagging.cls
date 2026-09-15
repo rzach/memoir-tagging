@@ -25,7 +25,13 @@
 %%   This work has the LPPL maintenance status "maintained".
 %% 
 %%   This work consists of the files listed in the README file.
-%% 
+%%
+
+% #tag save standard \@makecol definition so it can be restored at the
+% #tag end
+\let\new@std@class@makecol\@makecol
+% #tag end extra code 
+
 \def\mem@atleast@kernel{2023/06/01}
 \NeedsTeXFormat{LaTeX2e}[\mem@atleast@kernel]
 \ProvidesClass{memoir}%
@@ -2884,27 +2890,53 @@
 \aliaspagestyle{book}{empty}
 \aliaspagestyle{afterbook}{empty}
 
-\newcommand{\part}{%
-  \@setuppart
-  \secdef\@part\@spart}
-\newcommand{\beforepartskip}{\null\vfil}
-\newcommand{\midpartskip}{\par\vskip 2\onelineskip}
-\newcommand{\afterpartskip}{\vfil\newpage}
+% #tag begins here -- use template for part
+\DeclareDocumentCommand \part {s ={shorttitle}o m}
+  { \ParseLaTeXeHeading {part} {#1} {#2} {#3} }
+\EditInstance{heading}{part}%{display}
+{
+  prefix = \printpartname
+, number-format = \thepart
+, heading-decls = \centering \parindent 0pt\partnamefont
+, number-decls = \partnumfont
+, title-decls = \parttitlefont
+, headformat-instance = part
+, mark-cmd = \partmark{#1}
+, para-indent = false
+, start-code = \clearforchapter\thispagestyle{part}\ \vfil\@par
+, final-code = \vfil
+}
+\EditInstance{headformat}{part}%{display}
+{
+, heading-indent = 0pt
+, title-format = \printparttitle{#1}
+, number-title-sep = 2\onelineskip
+, prefix-number-sep = \WordSpaceAmount{1}
+}
+% #tag ends here
+% #tag original part stuff commented out below
 
-\newcommand{\@setuppart}{%
-  \if@openright
-    \cleardoublepage
-  \else
-    \clearpage
-  \fi
-  \thispagestyle{part}%
-  \if@twocolumn
-    \onecolumn
-    \@tempswatrue
-  \else
-    \@tempswafalse
-  \fi
-  \beforepartskip}
+% \newcommand{\part}{%
+%   \@setuppart
+%   \secdef\@part\@spart}
+\newcommand{\beforepartskip}{\null\vfil} %#tag ignored
+\newcommand{\midpartskip}{\par\vskip 2\onelineskip} %#tag ignored
+\newcommand{\afterpartskip}{\vfil\newpage} %#tag ignored
+
+% \newcommand{\@setuppart}{%
+%   \if@openright
+%     \cleardoublepage
+%   \else
+%     \clearpage
+%   \fi
+%   \thispagestyle{part}%
+%   \if@twocolumn
+%     \onecolumn
+%     \@tempswatrue
+%   \else
+%     \@tempswafalse
+%   \fi
+%   \beforepartskip}
 
 \newcommand{\partnamefont}{\normalfont\huge\bfseries}
 \newcommand{\partnumfont}{\normalfont\huge\bfseries}
@@ -2915,52 +2947,53 @@
 \newcommand{\printpartnum}{\partnumfont \thepart}
 \newcommand{\printparttitle}[1]{\parttitlefont #1}
 
-\newcommand{\mempartinfo}[3]{}
-\newcommand{\mempartstarinfo}[1]{}
+% \newcommand{\mempartinfo}[3]{}
+% \newcommand{\mempartstarinfo}[1]{}
 
-\long\def\@part[#1]#2{%
-  \M@gettitle{#1}%
-  \def\f@rtoc{#1}%
-  \@nameuse{part@f@rtoc@before@write@hook}%
-  %\phantomsection
-  \mempreaddparttotochook
-  \ifnum \c@secnumdepth >-2\relax
-    \refstepcounter{part}%
-    \addcontentsline{toc}{part}%
-      {\protect\partnumberline{\thepart}\f@rtoc}%
-    \mempartinfo{\thepart}{\f@rtoc}{#2}%
-  \else
-    \MakeLinkTarget[part]{}%
-    \addcontentsline{toc}{part}{\f@rtoc}%
-    \mempartinfo{}{\f@rtoc}{#2}%
-  \fi
-  \mempostaddparttotochook
-  \partmark{#1}%
-  {\centering
-   \interlinepenalty \@M
-   \parskip\z@
-   \normalfont
-   \ifnum \c@secnumdepth >-2\relax
-     \printpartname \partnamenum \printpartnum
-     \midpartskip
-   \fi
-   \printparttitle{#2}\par}%
-  \@endpart}
+% \long\def\@part[#1]#2{%
+%   \M@gettitle{#1}%
+%   \def\f@rtoc{#1}%
+%   \@nameuse{part@f@rtoc@before@write@hook}%
+%   %\phantomsection
+%   \mempreaddparttotochook
+%   \ifnum \c@secnumdepth >-2\relax
+%     \refstepcounter{part}%
+%     \addcontentsline{toc}{part}%
+%       {\protect\partnumberline{\thepart}\f@rtoc}%
+%     \mempartinfo{\thepart}{\f@rtoc}{#2}%
+%   \else
+%     \MakeLinkTarget[part]{}%
+%     \addcontentsline{toc}{part}{\f@rtoc}%
+%     \mempartinfo{}{\f@rtoc}{#2}%
+%   \fi
+%   \mempostaddparttotochook
+%   \partmark{#1}%
+%   {\centering
+%    \interlinepenalty \@M
+%    \parskip\z@
+%    \normalfont
+%    \ifnum \c@secnumdepth >-2\relax
+%      \printpartname \partnamenum \printpartnum
+%      \midpartskip
+%    \fi
+%    \printparttitle{#2}\par}%
+%   \@endpart}
 
 \newcommand\mempreaddparttotochook{}
 \newcommand\mempostaddparttotochook{}
 
-\long\def\@spart#1{%
-  \M@gettitle{#1}%
-  % \phantomsection
-  \MakeLinkTarget[part]{}%
-  \mempartstarinfo{#1}%
-  {\centering
-   \interlinepenalty \@M
-   \parskip\z@
-   \normalfont
-   \printparttitle{#1}\par}%
-  \@endpart}
+% \long\def\@spart#1{%
+%   \M@gettitle{#1}%
+%   % \phantomsection
+%   \MakeLinkTarget[part]{}%
+%   \mempartstarinfo{#1}%
+%   {\centering
+%    \interlinepenalty \@M
+%    \parskip\z@
+%    \normalfont
+%    \printparttitle{#1}\par}%
+%   \@endpart}
+% #tag ends
 
 \newif\ifm@mnopartnewpage
   \m@mnopartnewpagefalse
@@ -2988,34 +3021,34 @@
 % #tag begins here -- use template for chapter
 \DeclareDocumentCommand \chapter {s ={shorttitle}o m}
   { \ParseLaTeXeHeading {chapter} {#1} {#2} {#3} }
-\DeclareInstance{heading}{chapter}{display}
+\EditInstance{heading}{chapter}%{display}
 {
-, name = chapter
-, level = 0
-, placement = top
-, after-penalty-vspace = \beforechapskip
+  after-penalty-vspace = \beforechapskip
 , after-vspace = \afterchapskip
-, number-format = \chapnamefont\@chapapp~\chapnumfont\thechapter
+, prefix = \printchaptername
+, number-format = \chapnumfont\thechapter
 , heading-decls = \raggedright \parindent 0pt\chapnamefont
 , number-decls = \chapnumfont
 , title-decls = \chaptitlefont
-, headformat-instance = chapter
 , mark-cmd = \chaptermark{#1}
 , para-indent = false
 , start-code = \clearforchapter\thispagestyle{chapter}
+, final-code = \memendofchapterhook
 }
-\DeclareInstance{headformat}{chapter}{display}
+\EditInstance{headformat}{chapter}%{display}
 {
 , heading-indent = 0pt
+, title-format = \printchaptertitle{#1}
 , number-title-sep = \midchapskip
+, prefix-number-sep = \WordSpaceAmount{1}
 }
 % Without this, chapters aren't tagged as H1
 % Not sure if this is a problem with the template
-\tagpdfsetup
- {
-  add-new-tag=Chapter/Sect,
-  add-new-tag=Chapter-Title/H1
- }
+% \tagpdfsetup
+%  {
+%   add-new-tag=Chapter/Sect,
+%   add-new-tag=Chapter-Title/H1
+%  }
 % #tag ends here
 % #tag original chapter stuff commented out below
 
@@ -3114,9 +3147,9 @@
 %   \memendofchapterhook%
 % }
 
-% \newcommand\mempreaddchaptertotochook{}
-% \newcommand\mempostaddchaptertotochook{}
-% \newcommand\memendofchapterhook{}
+\newcommand\mempreaddchaptertotochook{}
+\newcommand\mempostaddchaptertotochook{}
+\newcommand\memendofchapterhook{}
 % \newcommand\settocpreprocessor[2]{%
 %   \MarkDeprecated{\settocpreprocessor}{in 2026, the problem it tried to solve \MessageBreak
 %     (see manual, section 9.2.3),\MessageBreak
@@ -5485,18 +5518,22 @@
   \ifnum \c@chapter>\z@ \thechapter.\fi \@arabic\c@equation}
 
 \RequirePackage{array}[2018/04/30]
-\newif \@iffirstamp
-\let\m@mold@addamp\@addamp
-\newcommand*{\m@m@addamp}{%
-  \if@firstamp
-    \@firstampfalse
-    \global\@curtab\@ne
-  \else
-    \@addtopreamble{&}%
-    \global\advance\@curtab\@ne
-  \fi}
-\let\@addamp\m@m@addamp
-
+% #tag -- had to comment this out because it adds two extra columns to
+% the tabular preamble, which in some cases will generate an array
+% where the last line has fewer <TD> cells in the tagging structure
+% than the rest
+% \newif \@iffirstamp
+% \let\m@mold@addamp\@addamp
+% \newcommand*{\m@m@addamp}{%
+%   \if@firstamp
+%     \@firstampfalse
+%     \global\@curtab\@ne
+%   \else
+%     \@addtopreamble{&}%
+%     \global\advance\@curtab\@ne
+%   \fi}
+% \let\@addamp\m@m@addamp
+% #tag -- commented code end
 
 \RequirePackage{dcolumn}[2014/10/28]
 \RequirePackage{delarray}[2014/10/28]
@@ -7147,7 +7184,7 @@
 %     \@nameuse{after#2title}
 %  }
 %   \@afterheading
-    \chapter*{#3}}
+    \chapter*{#3}} % #tag
   \@namedef{#2headstart}{\chapterheadstart}
   \@namedef{after#2title}{\afterchaptertitle}
   \@namedef{print#2nonum}{\printchapternonum}
@@ -7442,9 +7479,14 @@
   \newcommand{\cftpartformatpnumhook}[1]{}
   \newcommand*{\cftpartformatpnum}[1]{%
     \cftpartformatpnumhook{#1}%
-    \hb@xt@\@pnumwidth{\hss {\cftpartpagefont #1}}}
+    \UseHookWithArguments{contentsline/page/before}{4}{\toclevel@part}{#1}{part}{\@contentsline@destination}% #tag
+    \hb@xt@\@pnumwidth{\hss {\cftpartpagefont #1}}% #tag
+    \UseHookWithArguments{contentsline/page/after}{4}{\toclevel@part}{#1}{part}{\@contentsline@destination}% #tag
+  }
   \newcommand{\cftpartfillnum}[1]{%
+    \UseTaggingSocket{toc/leaders/before}\SuspendTagging{toc/leaders}% #tag
     {\cftpartleader}%
+    \ResumeTagging{toc/leaders}\UseTaggingSocket{toc/leaders/after}% #tag
     {\cftpartformatpnum{#1}}%
      \cftpartafterpnum\par}
 
@@ -12390,6 +12432,15 @@
 \fi
 \pagenumbering{arabic}
 
+% #tag restore the standard LaTeX footnote commands, which are redefined in
+% #tag memoir, just like the patch applied in latex-lab-footnotes with
+% #tag class hooks
+\ExplSyntaxOn
+    \cs_set_eq:NN  \@footnotemark \fnote_footnotemark:
+    \cs_set_eq:NN  \@makefntext\old@std@class@makefntext
+    \cs_set_eq:NN  \@makecol\new@std@class@makecol
+\ExplSyntaxOff
+% #tag end extra code
 
 \endinput
 %%
