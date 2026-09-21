@@ -27,18 +27,14 @@ is a stop-gap only to allow me to keep using `memoir`'s many layout
 features and still produce tagged PDFs. In the absence of a compatible
 official `memoir` class the long-term solution is probably to replace
 `memoir` with a compatible class and use compatible packages to do the
-work `memoir` now does. But who knows, maybe this is also the start of
-something. Feel free to propose fixes for `memoir`'s other
-incompatibilities or improvements to mine.
+work `memoir` now does (see below for ideas). But who knows, maybe
+this is also the start of something. Feel free to propose fixes for
+`memoir`'s other incompatibilities or improvements to mine.
 
 `memoir-tagging.cls` is the [`memoir`
 class](https://ctan.org/pkg/memoir) (version 3.8.4b 2025-11-04) with
 minimal changes to improve tagging. The changes are marked by `#tag`
 in comments.
-
-If that all seems like too precarious and you don't mind changing your
-existing documents (or feel like you should) to enable tagging and
-PDF/UA-2, see below.
 
 ## Changes and caveats:
 
@@ -61,8 +57,8 @@ PDF/UA-2, see below.
   the effect of `memoir`'s configuration commands as much as I could
   figure (e.g., use `\chaptitlefont`) so that chapter styles etc.
   still more or less work. More sophisticated chapter formats will
-  probably need their own templates. This requries the most recent
-  versions of the heading templates, so `lualatex-dev`.
+  probably need their own templates. **This requires the most recent
+  versions of the heading templates, so `lualatex-dev`.**
 - The code for `\book` is unchanged. Since `\book` is not a standard
   LaTeX command, no default command, templates, or tagging code are
   available to be edited; it would have to be done from scratch. This
@@ -71,13 +67,17 @@ PDF/UA-2, see below.
   which could be used as a model.
 - The code for other sectioning commands is not touched: `memoir` uses
   `\@startsec` which should take care of tagging for those.
-- `memoir`'s footnotes are incompatible with tagging, and so the
-  redefinition of `\@footnotemark` and `\@footnotetext` are supressed.
-  So just like
-  [latex-lab-footnotes](https://github.com/latex3/latex2e/blob/develop/required/latex-lab/latex-lab-footnotes.dtx),
-  the `\footnote` code is restored to the standard definition. Instead
-  of saving the definitions and restoring them at the end, we supress
-  the redefinition in `memoir`.
+- `memoir`'s footnotes are incompatible with tagging. We make sure
+  that the code from
+  [latex-lab-footnotes](https://github.com/latex3/latex2e/blob/develop/required/latex-lab/latex-lab-footnotes.dtx)
+  is available: we supress the redefinition in `memoir` and explicitly
+  set them to the tagging-aware code. (`latex-lab-footnotes` tries to
+  fix `memoir` too but the fix produces errors when `hyperref` is
+  loaded.) With footnote code reverted to LaTeX's own, none of
+  `memoir`'s footnote configuration options are available. (I believe
+  much of that is copied from the `footins` package, and by removing
+  that code and/or "disemulating" `footins` in `memoir` one could get
+  that functionality back.)
 - The same goes for `\title`, `\author`, `\date`, `\maketitle` and
   `\@maketitle`.
 - `memoir` redefines `\@makecol` in LaTeX's output routine. We avoid
@@ -111,14 +111,7 @@ PDF/UA-2, see below.
 - Since the class has been renamed, it won't load `memhfixc.sty` which
   makes `hyperref` work with `memoir`. E.g., it adds "book" to the
   `autoref` list of `hyperref` and also fixes some other links
-  including footnotes. In particular, because of this, there's still
-  an error
-  ```
-  ! LaTeX Error: No counter 'Hfootnote' defined.
-  ```
-  and footnote links don't work. Why, I'm not sure, given that the
-  LaTeX kernel code for `\footnote` should have taken over.
-- No other incompatible features of `memoir` have been targeted yet.
+  including footnotes.
 
 `memoir-XX-BAD.tex` are (edited) test files from the [tagging project test file
 collection](https://github.com/latex3/tagging-project/tree/main/tagging-status/testfiles-incompatible/memoir)
