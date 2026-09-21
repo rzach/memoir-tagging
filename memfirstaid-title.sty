@@ -1,0 +1,18 @@
+\ProvidesPackage {memfirstaid-title}
+
+% Install the title commands from latex-lab-testphase-title
+% This may break things in memoir but at least there is a properly
+% tagged title with \maketitle
+% This is basically taken from latex-lab-testphase-title.sty and does
+% what the \AddToHook{class/book/after} there does.
+% Why my local copy calls them \__tag_patch... and not \@@_patch...
+% like
+% https://github.com/latex3/latex2e/blob/develop/required/latex-lab/latex-lab-title.dtx
+% does I don't know or understand
+
+\RequirePackage{latex-lab-testphase-title}
+
+\ExplSyntaxOn
+    \cs_set_eq:NN \maketitle \__tag_patch_maketitle:
+    \cs_set_eq:NN \@maketitle \__tag_patch_@maketitle:
+\ExplSyntaxOff

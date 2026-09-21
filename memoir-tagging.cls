@@ -1,10 +1,10 @@
 %%
-%% This is file `memoir.cls',
+%% This is file `memoir-tagging.cls',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% memoir.dtx  (with options: `class')
+%% memoir-tagging.dtx  (with options: `class')
 %% 
 %%   Author: Peter Wilson  (herries dot press at earthlink dot net)
 %%           Herries Press
@@ -25,16 +25,10 @@
 %%   This work has the LPPL maintenance status "maintained".
 %% 
 %%   This work consists of the files listed in the README file.
-%%
-
-% #tag save standard \@makecol definition so it can be restored at the
-% #tag end
-\let\new@std@class@makecol\@makecol
-% #tag end extra code 
-
+%% 
 \def\mem@atleast@kernel{2023/06/01}
 \NeedsTeXFormat{LaTeX2e}[\mem@atleast@kernel]
-\ProvidesClass{memoir}%
+\ProvidesClass{memoir-tagging}%
   [2025/11/04 v3.8.4b configurable book, report, article document class]
 \newcommand\memversion{v3.8.4b, 2025/11/04}
 \providecommand\IfFormatAtLeastTF{\@ifl@t@r\fmtversion}
@@ -89,6 +83,17 @@
 \newcommand*{\@memerror}{\ClassError{memoir}}
 \newcommand*{\@memwarn}{\ClassWarning{memoir}}
 
+\newcommand{\@memfirstaid}[2]{%
+  \IfDocumentMetadataTF{%
+    \@memwarn{Supressing code for #1}%
+    \IfFileExists{memfirstaid-#1.sty}
+      {\RequirePackage{memfirstaid-#1}}
+      {\@memwarn{No memfirstaid-#1 package available; good luck}}}{#2}%
+}
+\newcommand{\@memnofirstaid}[2]{%
+  \IfDocumentMetadataTF{%
+    \@memwarn{Supressing code for #1}}{#2}%
+}
 \newif\ifsamename
 \newcommand{\nametest}[2]{%
   \samenamefalse%
@@ -2517,6 +2522,7 @@
 \newlength{\droptitle}
 \setlength{\droptitle}{0pt}
 
+\@memnofirstaid{title}{ % #tag
 \newcommand{\maketitle}{\par
   \begingroup
     \@bsmarkseries
@@ -2540,6 +2546,7 @@
   \endgroup
   \@bscontmark  %  \setcounter{footnote}{0}%
   }
+}
 \aliaspagestyle{title}{plain}
 
 \newcommand*{\@mem@titlefootkill}[1]{%
@@ -2547,6 +2554,7 @@
             \string\maketitle.\MessageBreak
             Use \protect\thanks\space instead}}
 
+\@memnofirstaid{title}{ % #tag
 \newcommand{\@maketitle}{%
   \let\footnote\@mem@titlefootkill
   \ifdim\pagetotal>\z@
@@ -2564,7 +2572,7 @@
   \maketitlehookd
   \par
   \vskip 1.5em}
-
+}
 \NewDocumentCommand\settitlingpagenumbering{m}
 { \def\mem@titlingpage@numbering{#1} }
 \settitlingpagenumbering\arabic
@@ -2643,6 +2651,7 @@
  %     \protected@xdef\thetitle{#1}
  %     \endgroup\endgroup}
 
+\@memnofirstaid{title}{
 \xpretocmd\title{\begingroup\let\footnote\@gobble}{}{\typeout{patch 1 to \string\title\space failed, please inform maintainer}}
 \xapptocmd\title{
   \begingroup%
@@ -2652,7 +2661,7 @@
      \protected@xdef\thetitle{#1}%
    \endgroup\endgroup%
 }{}{\typeout{patch 2 to \string\title\space failed, please inform maintainer}}
-
+}
  % \addtoiargdef{\author}{%
  %   \begingroup\let\footnote\@gobble}{%
  %   \begingroup
@@ -2663,7 +2672,7 @@
  %     \renewcommand{\thanksgap}[1]{}
  %     \protected@xdef\theauthor{#1}
  %   \endgroup\endgroup}
-
+\@memnofirstaid{title}{
 \xpretocmd\author{\begingroup\let\footnote\@gobble}{}{\typeout{patch 1 to \string\author\space failed, please inform maintainer}}
 \xapptocmd\author{%
    \begingroup%
@@ -2675,7 +2684,7 @@
      \protected@xdef\theauthor{#1}%
    \endgroup\endgroup%
 }{}{\typeout{patch 1 to \string\author\space failed, please inform maintainer}}
-
+}
  % \addtoiargdef{\date}{%
  %   \begingroup\let\footnote\@gobble}{%
  %   \begingroup
@@ -2684,7 +2693,7 @@
  %     \renewcommand{\thanksgap}[1]{}
  %     \protected@xdef\thedate{#1}
  %   \endgroup\endgroup}
-
+\@memfirstaid{title}{
 \xpretocmd\date{\begingroup\let\footnote\@gobble}{}{\typeout{patch 1 to \string\date\space failed, please inform maintainer}}
 \xapptocmd\date{%
   \begingroup%
@@ -2694,7 +2703,7 @@
     \protected@xdef\thedate{#1}%
   \endgroup\endgroup%
 }{}{\typeout{patch 2 to \string\date\space failed, please inform maintainer}}
-
+}
 \newcommand*{\bookpagemark}[1]{\markboth{}{}}
 \newcommand*{\partmark}[1]{\markboth{}{}}
 \newcommand*{\chaptermark}[1]{}
@@ -2890,53 +2899,29 @@
 \aliaspagestyle{book}{empty}
 \aliaspagestyle{afterbook}{empty}
 
-% #tag begins here -- use template for part
-\DeclareDocumentCommand \part {s ={shorttitle}o m}
-  { \ParseLaTeXeHeading {part} {#1} {#2} {#3} }
-\EditInstance{heading}{part}%{display}
-{
-  prefix = \printpartname
-, number-format = \thepart
-, heading-decls = \centering \parindent 0pt\partnamefont
-, number-decls = \partnumfont
-, title-decls = \parttitlefont
-, headformat-instance = part
-, mark-cmd = \partmark{#1}
-, para-indent = false
-, start-code = \clearforchapter\thispagestyle{part}\ \vfil\@par
-, final-code = \vfil
-}
-\EditInstance{headformat}{part}%{display}
-{
-, heading-indent = 0pt
-, title-format = \printparttitle{#1}
-, number-title-sep = 2\onelineskip
-, prefix-number-sep = \WordSpaceAmount{1}
-}
-% #tag ends here
-% #tag original part stuff commented out below
+\@memnofirstaid{headings}{% #tag
+\newcommand{\part}{%
+  \@setuppart
+  \secdef\@part\@spart}
+} % #tag
+\newcommand{\beforepartskip}{\null\vfil}
+\newcommand{\midpartskip}{\par\vskip 2\onelineskip}
+\newcommand{\afterpartskip}{\vfil\newpage}
 
-% \newcommand{\part}{%
-%   \@setuppart
-%   \secdef\@part\@spart}
-\newcommand{\beforepartskip}{\null\vfil} %#tag ignored
-\newcommand{\midpartskip}{\par\vskip 2\onelineskip} %#tag ignored
-\newcommand{\afterpartskip}{\vfil\newpage} %#tag ignored
-
-% \newcommand{\@setuppart}{%
-%   \if@openright
-%     \cleardoublepage
-%   \else
-%     \clearpage
-%   \fi
-%   \thispagestyle{part}%
-%   \if@twocolumn
-%     \onecolumn
-%     \@tempswatrue
-%   \else
-%     \@tempswafalse
-%   \fi
-%   \beforepartskip}
+\newcommand{\@setuppart}{%
+  \if@openright
+    \cleardoublepage
+  \else
+    \clearpage
+  \fi
+  \thispagestyle{part}%
+  \if@twocolumn
+    \onecolumn
+    \@tempswatrue
+  \else
+    \@tempswafalse
+  \fi
+  \beforepartskip}
 
 \newcommand{\partnamefont}{\normalfont\huge\bfseries}
 \newcommand{\partnumfont}{\normalfont\huge\bfseries}
@@ -2947,54 +2932,55 @@
 \newcommand{\printpartnum}{\partnumfont \thepart}
 \newcommand{\printparttitle}[1]{\parttitlefont #1}
 
-% \newcommand{\mempartinfo}[3]{}
-% \newcommand{\mempartstarinfo}[1]{}
+\newcommand{\mempartinfo}[3]{}
+\newcommand{\mempartstarinfo}[1]{}
 
-% \long\def\@part[#1]#2{%
-%   \M@gettitle{#1}%
-%   \def\f@rtoc{#1}%
-%   \@nameuse{part@f@rtoc@before@write@hook}%
-%   %\phantomsection
-%   \mempreaddparttotochook
-%   \ifnum \c@secnumdepth >-2\relax
-%     \refstepcounter{part}%
-%     \addcontentsline{toc}{part}%
-%       {\protect\partnumberline{\thepart}\f@rtoc}%
-%     \mempartinfo{\thepart}{\f@rtoc}{#2}%
-%   \else
-%     \MakeLinkTarget[part]{}%
-%     \addcontentsline{toc}{part}{\f@rtoc}%
-%     \mempartinfo{}{\f@rtoc}{#2}%
-%   \fi
-%   \mempostaddparttotochook
-%   \partmark{#1}%
-%   {\centering
-%    \interlinepenalty \@M
-%    \parskip\z@
-%    \normalfont
-%    \ifnum \c@secnumdepth >-2\relax
-%      \printpartname \partnamenum \printpartnum
-%      \midpartskip
-%    \fi
-%    \printparttitle{#2}\par}%
-%   \@endpart}
-
+\@memnofirstaid{headings}{% #tag
+\long\def\@part[#1]#2{%
+  \M@gettitle{#1}%
+  \def\f@rtoc{#1}%
+  \@nameuse{part@f@rtoc@before@write@hook}%
+  %\phantomsection
+  \mempreaddparttotochook
+  \ifnum \c@secnumdepth >-2\relax
+    \refstepcounter{part}%
+    \addcontentsline{toc}{part}%
+      {\protect\partnumberline{\thepart}\f@rtoc}%
+    \mempartinfo{\thepart}{\f@rtoc}{#2}%
+  \else
+    \MakeLinkTarget[part]{}%
+    \addcontentsline{toc}{part}{\f@rtoc}%
+    \mempartinfo{}{\f@rtoc}{#2}%
+  \fi
+  \mempostaddparttotochook
+  \partmark{#1}%
+  {\centering
+   \interlinepenalty \@M
+   \parskip\z@
+   \normalfont
+   \ifnum \c@secnumdepth >-2\relax
+     \printpartname \partnamenum \printpartnum
+     \midpartskip
+   \fi
+   \printparttitle{#2}\par}%
+  \@endpart}
+} % #tag
 \newcommand\mempreaddparttotochook{}
 \newcommand\mempostaddparttotochook{}
 
-% \long\def\@spart#1{%
-%   \M@gettitle{#1}%
-%   % \phantomsection
-%   \MakeLinkTarget[part]{}%
-%   \mempartstarinfo{#1}%
-%   {\centering
-%    \interlinepenalty \@M
-%    \parskip\z@
-%    \normalfont
-%    \printparttitle{#1}\par}%
-%   \@endpart}
-% #tag ends
-
+\@memnofirstaid{headings}{% #tag
+\long\def\@spart#1{%
+  \M@gettitle{#1}%
+  % \phantomsection
+  \MakeLinkTarget[part]{}%
+  \mempartstarinfo{#1}%
+  {\centering
+   \interlinepenalty \@M
+   \parskip\z@
+   \normalfont
+   \printparttitle{#1}\par}%
+  \@endpart}
+} %tag
 \newif\ifm@mnopartnewpage
   \m@mnopartnewpagefalse
 \newcommand*{\partblankpage}{\m@mnopartnewpagefalse}
@@ -3014,167 +3000,136 @@
   \if@tempswa
     \twocolumn
   \fi}
+\@memnofirstaid{headings}{% #tag
 \def\@endpart{\partpageend}
-
+} % #tag
 \aliaspagestyle{afterpart}{empty}
 
-% #tag begins here -- use template for chapter
-\DeclareDocumentCommand \chapter {s ={shorttitle}o m}
-  { \ParseLaTeXeHeading {chapter} {#1} {#2} {#3} }
-\EditInstance{heading}{chapter}%{display}
-{
-  after-penalty-vspace = \beforechapskip
-, after-vspace = \afterchapskip
-, prefix = \printchaptername
-, number-format = \chapnumfont\thechapter
-, heading-decls = \raggedright \parindent 0pt\chapnamefont
-, number-decls = \chapnumfont
-, title-decls = \chaptitlefont
-, mark-cmd = \chaptermark{#1}
-, para-indent = false
-, start-code = \clearforchapter\thispagestyle{chapter}
-, final-code = \memendofchapterhook
+\@memnofirstaid{headings}{% #tag
+\newcommand\chapter{%
+  \ifartopt\par\@nameuse{chapterblock}\else
+    \clearforchapter
+    \thispagestyle{chapter}
+    \global\@topnum\z@
+  \fi
+  \m@mindentafterchapter
+  \@ifstar{\@m@mschapter}{\@m@mchapter}}
+} % #tag
+\newcommand*\indentafterchapter{\def\m@mindentafterchapter{\@afterindenttrue}}
+\newcommand*\noindentafterchapter{\def\m@mindentafterchapter{\@afterindentfalse}}
+\noindentafterchapter
+
+\newcommand{\@m@mchapter}[1][]{%
+  \def\ch@pt@c{#1}% capture first optional arg
+  \@ifnextchar[{\@chapter}{\@chapter[]}%
 }
-\EditInstance{headformat}{chapter}%{display}
-{
-, heading-indent = 0pt
-, title-format = \printchaptertitle{#1}
-, number-title-sep = \midchapskip
-, prefix-number-sep = \WordSpaceAmount{1}
+\def\m@m@empty{\@empty}
+
+\newcommand{\memchapinfo}[4]{}
+\newcommand{\memchapstarinfo}[2]{}
+\newcommand{\memappchapinfo}[4]{}
+\newcommand{\memappchapstarinfo}[2]{}
+
+\newif\ifm@mpn@new@chap
+  \m@mpn@new@chapfalse
+\newif\ifm@mpn@new@schap
+  \m@mpn@new@schapfalse
+
+\@memnofirstaid{headings}{% #tag
+\def\@chapter[#1]#2{%
+  \m@mpn@new@chaptrue%
+  \m@mpn@new@schapfalse%
+  \def\f@rbdy{#2}%
+  \ifx\ch@pt@c\@empty % no optional args
+    \def\f@rtoc{#2}%
+    \def\f@rhdr{#2}%
+  \else                  % at least one opt arg
+    \let\f@rtoc\ch@pt@c
+    \ifx\@empty#1\@empty
+      \let\f@rhdr\ch@pt@c
+    \else
+      \def\f@rhdr{#1}%
+    \fi
+  \fi
+  \m@m@Andfalse
+  \ifnum \c@secnumdepth >\m@ne
+    \if@mainmatter
+      \m@m@Andtrue
+    \fi
+  \fi
+  \ifm@m@And
+    \refstepcounter{chapter}%
+    \typeout{\@chapapp\space\thechapter.}%
+  \else
+    \MakeLinkTarget[chapter]{}%
+  \fi
+  \ifartopt
+    \@makechapterhead{#2}%
+    \@afterheading
+    \chaptermark{\f@rhdr}%
+  \else
+    \chaptermark{\f@rhdr}
+    \insertchapterspace
+    \if@twocolumn
+      \@topnewpage[\@makechapterhead{#2}]%
+    \else
+      \@makechapterhead{#2}%
+    \fi
+    \@afterheading
+  \fi
+  \@nameuse{chapter@f@rtoc@before@write@hook}%
+  \mempreaddchaptertotochook%
+  \ifm@m@And
+    \ifanappendix
+      \addcontentsline{toc}{appendix}{%
+        \protect\chapternumberline{\thechapter}\f@rtoc}%
+      \memappchapinfo{\thechapter}{\f@rtoc}{\f@rhdr}{#2}%
+    \else
+      \addcontentsline{toc}{chapter}{%
+        \protect\chapternumberline{\thechapter}\f@rtoc}%
+      \memchapinfo{\thechapter}{\f@rtoc}{\f@rhdr}{#2}%
+    \fi
+  \else
+    \addcontentsline{toc}{chapter}{\f@rtoc}%
+    \ifanappendix
+      \memappchapinfo{}{\f@rtoc}{\f@rhdr}{#2}%
+    \else
+      \memchapinfo{}{\f@rtoc}{\f@rhdr}{#2}%
+    \fi
+  \fi
+  \mempostaddchaptertotochook%
+  \ifheadnameref\ExpandArgs{V}\M@gettitle\f@rhdr\else\ExpandArgs{V}\M@gettitle\f@rtoc\fi%
+  \memendofchapterhook%
 }
-% Without this, chapters aren't tagged as H1
-% Not sure if this is a problem with the template
-% \tagpdfsetup
-%  {
-%   add-new-tag=Chapter/Sect,
-%   add-new-tag=Chapter-Title/H1
-%  }
-% #tag ends here
-% #tag original chapter stuff commented out below
-
-% \newcommand\chapter{%
-%   \ifartopt\par\@nameuse{chapterblock}\else
-%     \clearforchapter
-%     \thispagestyle{chapter}
-%     \global\@topnum\z@
-%   \fi
-%   \m@mindentafterchapter
-%   \@ifstar{\@m@mschapter}{\@m@mchapter}}
-
-% \newcommand*\indentafterchapter{\def\m@mindentafterchapter{\@afterindenttrue}}
-% \newcommand*\noindentafterchapter{\def\m@mindentafterchapter{\@afterindentfalse}}
-% \noindentafterchapter
-
-% \newcommand{\@m@mchapter}[1][]{%
-%   \def\ch@pt@c{#1}% capture first optional arg
-%   \@ifnextchar[{\@chapter}{\@chapter[]}%
-% }
-% \def\m@m@empty{\@empty}
-
-% \newcommand{\memchapinfo}[4]{}
-% \newcommand{\memchapstarinfo}[2]{}
-% \newcommand{\memappchapinfo}[4]{}
-% \newcommand{\memappchapstarinfo}[2]{}
-
-% \newif\ifm@mpn@new@chap
-%   \m@mpn@new@chapfalse
-% \newif\ifm@mpn@new@schap
-%   \m@mpn@new@schapfalse
-
-% \def\@chapter[#1]#2{%
-%   \m@mpn@new@chaptrue%
-%   \m@mpn@new@schapfalse%
-%   \def\f@rbdy{#2}%
-%   \ifx\ch@pt@c\@empty % no optional args
-%     \def\f@rtoc{#2}%
-%     \def\f@rhdr{#2}%
-%   \else                  % at least one opt arg
-%     \let\f@rtoc\ch@pt@c
-%     \ifx\@empty#1\@empty
-%       \let\f@rhdr\ch@pt@c
-%     \else
-%       \def\f@rhdr{#1}%
-%     \fi
-%   \fi
-%   \m@m@Andfalse
-%   \ifnum \c@secnumdepth >\m@ne
-%     \if@mainmatter
-%       \m@m@Andtrue
-%     \fi
-%   \fi
-%   \ifm@m@And
-%     \refstepcounter{chapter}%
-%     \typeout{\@chapapp\space\thechapter.}%
-%   \else
-%     \MakeLinkTarget[chapter]{}%
-%   \fi
-%   \ifartopt
-%     \@makechapterhead{#2}%
-%     \@afterheading
-%     \chaptermark{\f@rhdr}%
-%   \else
-%     \chaptermark{\f@rhdr}
-%     \insertchapterspace
-%     \if@twocolumn
-%       \@topnewpage[\@makechapterhead{#2}]%
-%     \else
-%       \@makechapterhead{#2}%
-%     \fi
-%     \@afterheading
-%   \fi
-%   \@nameuse{chapter@f@rtoc@before@write@hook}%
-%   \mempreaddchaptertotochook%
-%   \ifm@m@And
-%     \ifanappendix
-%       \addcontentsline{toc}{appendix}{%
-%         \protect\chapternumberline{\thechapter}\f@rtoc}%
-%       \memappchapinfo{\thechapter}{\f@rtoc}{\f@rhdr}{#2}%
-%     \else
-%       \addcontentsline{toc}{chapter}{%
-%         \protect\chapternumberline{\thechapter}\f@rtoc}%
-%       \memchapinfo{\thechapter}{\f@rtoc}{\f@rhdr}{#2}%
-%     \fi
-%   \else
-%     \addcontentsline{toc}{chapter}{\f@rtoc}%
-%     \ifanappendix
-%       \memappchapinfo{}{\f@rtoc}{\f@rhdr}{#2}%
-%     \else
-%       \memchapinfo{}{\f@rtoc}{\f@rhdr}{#2}%
-%     \fi
-%   \fi
-%   \mempostaddchaptertotochook%
-%   \ifheadnameref\ExpandArgs{V}\M@gettitle\f@rhdr\else\ExpandArgs{V}\M@gettitle\f@rtoc\fi%
-%   \memendofchapterhook%
-% }
-
+} % #tag
 \newcommand\mempreaddchaptertotochook{}
 \newcommand\mempostaddchaptertotochook{}
 \newcommand\memendofchapterhook{}
-% \newcommand\settocpreprocessor[2]{%
-%   \MarkDeprecated{\settocpreprocessor}{in 2026, the problem it tried to solve \MessageBreak
-%     (see manual, section 9.2.3),\MessageBreak
-%     has been fixed in the kernel, and the feature is\MessageBreak
-%     no longer needed.}%
-%   \@namedef{#1@f@rtoc@before@write@hook}{#2}}
-% \def\@makechapterhead#1{%
-%   \chapterheadstart%
-%   {%
-%    \parskip \z@
-%    \parindent \z@ \memRTLraggedright \normalfont
-%    \ifm@m@And
-%      \printchaptername \chapternamenum \printchapternum
-%      \afterchapternum %
-%    \else
-%      \printchapternonum
-%    \fi
-%    \interlinepenalty\@M
-%    \printchaptertitle{#1} %
-%    \afterchaptertitle %
-%   }}
+\newcommand\settocpreprocessor[2]{%
+  \MarkDeprecated{\settocpreprocessor}{in 2026, the problem it tried to solve \MessageBreak
+    (see manual, section 9.2.3),\MessageBreak
+    has been fixed in the kernel, and the feature is\MessageBreak
+    no longer needed.}%
+  \@namedef{#1@f@rtoc@before@write@hook}{#2}}
+\def\@makechapterhead#1{%
+  \chapterheadstart%
+  {%
+   \parskip \z@
+   \parindent \z@ \memRTLraggedright \normalfont
+   \ifm@m@And
+     \printchaptername \chapternamenum \printchapternum
+     \afterchapternum %
+   \else
+     \printchapternonum
+   \fi
+   \interlinepenalty\@M
+   \printchaptertitle{#1} %
+   \afterchaptertitle %
+  }}
 
-% \newcommand*{\insertchapterspace}{%
-%   \addtocontents{lof}{\protect\addvspace{10pt}}%
-%   \addtocontents{lot}{\protect\addvspace{10pt}}}
+\newcommand*{\insertchapterspace}{%
+  \addtocontents{lof}{\protect\addvspace{10pt}}%
+  \addtocontents{lot}{\protect\addvspace{10pt}}}
 
 \newlength{\beforechapskip} \setlength{\beforechapskip}{50pt}
 \newlength{\midchapskip}    \setlength{\midchapskip}{20pt}
@@ -3196,49 +3151,50 @@
   \setlength{\midchapskip}{20pt}%
   \setlength{\afterchapskip}{40pt}}
 
-% \newcommand{\@m@mschapter}[2][\@empty]{%
-%   \@schapter{#2}%
-%   \ifx \@empty#1
-%     \def\f@rhdr{#2}%
-%   \else%                    opt arg
-%     \def\f@rhdr{#1}%
-%     \setcounter{secnumdepth}{-10}%
-%     \chaptermark{#1}%
-%     \setcounter{secnumdepth}{\value{maxsecnumdepth}}%
-%   \fi
-%   \ifanappendix
-%     \memappchapstarinfo{\f@rhdr}{#2}%
-%   \else
-%     \memchapstarinfo{\f@rhdr}{#2}%
-%   \fi
-%   \ifheadnameref\ExpandArgs\M@gettitle\f@rhdr\else\M@gettitle{#2}\fi}
+\newcommand{\@m@mschapter}[2][\@empty]{%
+  \@schapter{#2}%
+  \ifx \@empty#1
+    \def\f@rhdr{#2}%
+  \else%                    opt arg
+    \def\f@rhdr{#1}%
+    \setcounter{secnumdepth}{-10}%
+    \chaptermark{#1}%
+    \setcounter{secnumdepth}{\value{maxsecnumdepth}}%
+  \fi
+  \ifanappendix
+    \memappchapstarinfo{\f@rhdr}{#2}%
+  \else
+    \memchapstarinfo{\f@rhdr}{#2}%
+  \fi
+  \ifheadnameref\ExpandArgs\M@gettitle\f@rhdr\else\M@gettitle{#2}\fi}
 
-% \newcommand{\@schapter}[1]{%
-%   \m@mpn@new@schaptrue%
-%   \m@mpn@new@chapfalse%
-%   \MakeLinkTarget[chapter]{}%
-%   \def\f@rbdy{#1}%
-%   \ifartopt
-%     \@makeschapterhead{#1}%
-%   \else
-%     \if@twocolumn
-%       \@topnewpage[\@makeschapterhead{#1}]%
-%     \else
-%       \@makeschapterhead{#1}%
-%     \fi
-%   \fi
-%   \@afterheading}
-
-% \def\@makeschapterhead#1{%
-%   \chapterheadstart
-%   {%
-%    \parskip \z@%
-%    \parindent \z@ \memRTLraggedright \normalfont
-%    \printchapternonum
-%    \interlinepenalty\@M
-%    \printchaptertitle{#1}%
-%    \afterchaptertitle}%
-% }
+\@memfirstaid{headings}{% #tag
+\newcommand{\@schapter}[1]{%
+  \m@mpn@new@schaptrue%
+  \m@mpn@new@chapfalse%
+  \MakeLinkTarget[chapter]{}%
+  \def\f@rbdy{#1}%
+  \ifartopt
+    \@makeschapterhead{#1}%
+  \else
+    \if@twocolumn
+      \@topnewpage[\@makeschapterhead{#1}]%
+    \else
+      \@makeschapterhead{#1}%
+    \fi
+  \fi
+  \@afterheading}
+} % #tag
+\def\@makeschapterhead#1{%
+  \chapterheadstart
+  {%
+   \parskip \z@%
+   \parindent \z@ \memRTLraggedright \normalfont
+   \printchapternonum
+   \interlinepenalty\@M
+   \printchaptertitle{#1}%
+   \afterchaptertitle}%
+}
 
 \newcommand{\makechapterstyle}[2]{\@namedef{chs@#1}{\@chs@def@ult #2}}
 \newcommand{\chapterstyle}[1]{\@nameuse{chs@#1}}
@@ -5518,22 +5474,19 @@
   \ifnum \c@chapter>\z@ \thechapter.\fi \@arabic\c@equation}
 
 \RequirePackage{array}[2018/04/30]
-% #tag -- had to comment this out because it adds two extra columns to
-% the tabular preamble, which in some cases will generate an array
-% where the last line has fewer <TD> cells in the tagging structure
-% than the rest
-% \newif \@iffirstamp
-% \let\m@mold@addamp\@addamp
-% \newcommand*{\m@m@addamp}{%
-%   \if@firstamp
-%     \@firstampfalse
-%     \global\@curtab\@ne
-%   \else
-%     \@addtopreamble{&}%
-%     \global\advance\@curtab\@ne
-%   \fi}
-% \let\@addamp\m@m@addamp
-% #tag -- commented code end
+\newif \@iffirstamp
+\let\m@mold@addamp\@addamp
+\newcommand*{\m@m@addamp}{%
+  \if@firstamp
+    \@firstampfalse
+    \global\@curtab\@ne
+  \else
+    \@addtopreamble{&}%
+    \global\advance\@curtab\@ne
+  \fi}
+\@memnofirstaid{addamp}{% #tag - don't redefine \@addamp
+  \let\@addamp\m@m@addamp
+} % #tag
 
 \RequirePackage{dcolumn}[2014/10/28]
 \RequirePackage{delarray}[2014/10/28]
@@ -7168,29 +7121,24 @@
       \@nameuse{cft#2afterlisthook}%
     \endgroup
     \restorefromonecol}
-% memoir formats the TOC heading directly, without calling #tag
-% \chapter. Hence TOC headings are not tagged as H1 #tag
-% This change does not fix this #tag
   \@namedef{@#2maketitle}{%
-%     \@nameuse{#2headstart}
-%    {\parindent\z@
-%     \parskip\z@
-% %%%%  \parskip\cftparskip
-%     \interlinepenalty\@M
-%     \@nameuse{print#2nonum}%
-%     \@nameuse{print#2title}{#3}%
-%     \@nameuse{#2mark}%
-%     \thispagestyle{chapter}%
-%     \@nameuse{after#2title}
-%  }
-%   \@afterheading
-    \chapter*{#3}} % #tag
+    \@nameuse{#2headstart}
+   {\parindent\z@
+    \parskip\z@
+%%%%  \parskip\cftparskip
+    \interlinepenalty\@M
+    \@nameuse{print#2nonum}%
+    \@nameuse{print#2title}{#3}%
+    \@nameuse{#2mark}%
+    \thispagestyle{chapter}%
+    \@nameuse{after#2title}
+   }
+    \@afterheading}
   \@namedef{#2headstart}{\chapterheadstart}
   \@namedef{after#2title}{\afterchaptertitle}
   \@namedef{print#2nonum}{\printchapternonum}
   \@namedef{print#2title}##1{\printchaptertitle{##1}}
 } % end \newlistof
-
 \newif\ifmem@em@starred@listof
 \newcommand\KeepFromToc{\mem@em@starred@listoftrue}
 \renewcommand{\@starttoc}[1]{%
@@ -7208,7 +7156,6 @@
     \fi
   \@nobreakfalse
   \endgroup}
-
 \newlistof{tableofcontents}{toc}{\contentsname}
 \newcommand*{\setpnumwidth}[1]{\renewcommand{\@pnumwidth}{#1}}
 \newcommand*{\setrmarg}[1]{\renewcommand{\@tocrmarg}{#1}}
@@ -7234,8 +7181,7 @@
     \UseHookWithArguments{contentsline/number/before}{1}{#1}% #tag
     \@cftn@me\@cftbsnum #1\@cftasnum
     \UseHookWithArguments{contentsline/number/after}{1}{#1}% #tag
-  }\@cftasnumb % #tag
-  }
+    }\@cftasnumb}% #tag
 \newcommand{\@cftbsnum}{}
 \newcommand{\@cftasnum}{}
 \newcommand{\@cftasnumb}{}
@@ -7274,9 +7220,9 @@
  \expandafter\let\expandafter\@cftn@me\csname cft#2name\endcsname
 %%%       \advance\leftskip\@tempdima \null\nobreak\hskip -\leftskip
        \advance\memRTLleftskip\@tempdima \null\nobreak\hskip -\memRTLleftskip
-       \UseHookWithArguments{contentsline/text/before}{4}{\toclevel@#2}{##1}{##2}{\@contentsline@destination}% #tag
+       \UseHookWithArguments{contentsline/text/before}{4}{\@nameuse{toclevel@#2}}{##1}{##2}{\@contentsline@destination}% #tag
        {\@nameuse{cft#2font}{##1}}\nobreak
-       \UseHookWithArguments{contentsline/text/after}{4}{\toclevel@#2}{##1}{##2}{\@contentsline@destination}% #tag
+       \UseHookWithArguments{contentsline/text/after}{4}{\@nameuse{toclevel@#2}}{##1}{##2}{\@contentsline@destination}% #tag
        \@nameuse{cft#2fillnum}{##2}}
     \fi
   }% end of \l@#2
@@ -7314,23 +7260,17 @@
   \@namedef{cft#2formatpnumhook}##1{}
   \@namedef{cft#2formatpnum}##1{%
     \@nameuse{cft#2formatpnumhook}{##1}%
-    % memoir does not link page number #tag
-    % hooks required to close the TOCI #tag
-    % not sure why page numbers still aren't linked though #tag
-    \UseHookWithArguments{contentsline/page/before}{4}{\toclevel@#2}{#1}{#2}{\@contentsline@destination}% #tag
+    \UseHookWithArguments{contentsline/page/before}{4}{\@nameuse{toclevel@#2}}{#1}{#2}{\@contentsline@destination}% #tag
     \hb@xt@\@pnumwidth{\hfil\@nameuse{cft#2pagefont}##1}%
-    \UseHookWithArguments{contentsline/page/after}{4}{\toclevel@#2}{#1}{#2}{\@contentsline@destination}% #tag
-    }
+    \UseHookWithArguments{contentsline/page/after}{4}{\@nameuse{toclevel@#2}}{#1}{#2}{\@contentsline@destination}}% #tag
   \@namedef{cft#2fillnum}##1{%
     {\UseTaggingSocket{toc/leaders/before}\SuspendTagging{toc/leaders}% #tag
-    \@nameuse{cft#2leader}}\nobreak
+     \@nameuse{cft#2leader}}\nobreak
+     \ResumeTagging{toc/leaders}\UseTaggingSocket{toc/leaders/after}% #tag
 %%%    \hb@xt@\@pnumwidth{%
 %%%      \hfil\@nameuse{cft#2pagefont}##1}
-    \ResumeTagging{toc/leaders}\UseTaggingSocket{toc/leaders/after}% #tag
        \@nameuse{cft#2formatpnum}{##1}%
-       \@nameuse{cft#2afterpnum}%
-      \par
-    }
+       \@nameuse{cft#2afterpnum}\par}
 } % end \newlistentry
 
 \newcommand*{\cftsetindents}[3]{%
@@ -7364,7 +7304,7 @@
 %%%       \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
        \advance\memRTLleftskip \@tempdima \null\nobreak\hskip -\memRTLleftskip
        \UseHookWithArguments{contentsline/text/before}{4}{\toclevel@book}{#1}{#2}{\@contentsline@destination}% #tag
-       {\cftbookfont {#1}}% #tag
+       {\cftbookfont {#1}}%
        \UseHookWithArguments{contentsline/text/after}{4}{\toclevel@book}{#1}{#2}{\@contentsline@destination}% #tag
        \cftbookfillnum{#2}}
       \nobreak
@@ -7381,8 +7321,7 @@
     \UseHookWithArguments{contentsline/number/before}{1}{#1}% #tag
     \cftbookname\@cftbsnum #1\@cftasnum
     \UseHookWithArguments{contentsline/number/after}{1}{#1}% #tag
-    }\@cftasnumb % #tag
-  }%%\space}
+    }\@cftasnumb}%%\space}
 
 \newlength{\cftbeforebookskip}
   \setlength{\cftbeforebookskip}{2.25em \@plus\p@}
@@ -7457,8 +7396,7 @@
     \UseHookWithArguments{contentsline/number/before}{1}{#1}% #tag
     \cftpartname\@cftbsnum #1\@cftasnum
     \UseHookWithArguments{contentsline/number/after}{1}{#1}% #tag
-  }\@cftasnumb % #tag
-  }%%\space}
+    }\@cftasnumb}%%\space}
 
   \newlength{\cftbeforepartskip}
     \setlength{\cftbeforepartskip}{2.25em \@plus\p@}
@@ -7480,9 +7418,9 @@
   \newcommand*{\cftpartformatpnum}[1]{%
     \cftpartformatpnumhook{#1}%
     \UseHookWithArguments{contentsline/page/before}{4}{\toclevel@part}{#1}{part}{\@contentsline@destination}% #tag
-    \hb@xt@\@pnumwidth{\hss {\cftpartpagefont #1}}% #tag
+    \hb@xt@\@pnumwidth{\hss {\cftpartpagefont #1}}%
     \UseHookWithArguments{contentsline/page/after}{4}{\toclevel@part}{#1}{part}{\@contentsline@destination}% #tag
-  }
+    }
   \newcommand{\cftpartfillnum}[1]{%
     \UseTaggingSocket{toc/leaders/before}\SuspendTagging{toc/leaders}% #tag
     {\cftpartleader}%
@@ -7537,10 +7475,10 @@
   % \hb@xt@\@tempdima{\@chapapp@head\@cftbsnum #1\@cftasnum\hfil}%
   % \@cftasnumb}
   \chapternumberlinebox\@tempdima{%
-    \UseHookWithArguments{contentsline/number/before}{1}{#1}% #tag
-    \@chapapp@head\@cftbsnum #1\@cftasnum
-    \UseHookWithArguments{contentsline/number/after}{1}{#1}% #tag
-  }\@cftasnumb}
+        \UseHookWithArguments{contentsline/number/before}{1}{#1}% #tag
+        \@chapapp@head\@cftbsnum #1\@cftasnum
+        \UseHookWithArguments{contentsline/number/after}{1}{#1}% #tag
+        }\@cftasnumb}
 
   \newlength{\cftbeforechapterskip}
     \setlength{\cftbeforechapterskip}{1.0em \@plus\p@}
@@ -7562,7 +7500,7 @@
   \newcommand*{\cftchapterformatpnum}[1]{%
     \cftchapterformatpnumhook{#1}%
     \UseHookWithArguments{contentsline/page/before}{4}{\toclevel@chapter}{#1}{chapter}{\@contentsline@destination}% #tag
-    \hb@xt@\@pnumwidth{\hfil\cftchapterpagefont #1}% #tag
+    \hb@xt@\@pnumwidth{\hfil\cftchapterpagefont #1}%
     \UseHookWithArguments{contentsline/page/after}{4}{\toclevel@chapter}{#1}{chapter}{\@contentsline@destination}% #tag
     }
   \newcommand*{\cftchapterfillnum}[1]{%
@@ -8751,6 +8689,7 @@
     \spacefactor\@x@sf\relax
   \fi}
 
+\@memnofirstaid{footnote}{
 \renewcommand*{\@footnotemark}{%
   \leavevmode
   \ifhmode
@@ -8762,6 +8701,7 @@
   \m@mmf@prepare
   \ifhmode\spacefactor\@x@sf\fi
   \relax}
+}
 
 \newcommand{\mem@pn@multiple@marker}[1]{%
   \leavevmode
@@ -8803,7 +8743,9 @@
   \advance\leftskip \footmarkwidth \null\nobreak\hskip -\leftskip\relax
   \makefootmarkhook\relax
   \footfootmark #1}
+\@memfirstaid{makefntext}{
 \newcommand{\@makefntext}[1]{\makefootmark #1}
+}
 \footmarkstyle{\textsuperscript{#1}}
 \setlength{\footmarkwidth}{1.8em}
 \setlength{\footmarksep}{-1.8em}
@@ -9753,10 +9695,11 @@
   \m@m@makecoltext
   \global \maxdepth \@maxdepth}
 
+\@memfirstaid{makecol}{
 \newcommand{\feetabovefloat}{\gdef\@makecol{\mem@makecol}}
 \newcommand{\feetbelowfloat}{\gdef\@makecol{\mem@makecolbf}}
 \feetabovefloat
-
+}
 \newcommand\feetatbottom{\def\m@mopfn@bottom{\vfill\relax}}
 \newcommand\feetbelowragged{\let\m@mopfn@bottom\relax}
 \feetbelowragged
@@ -9775,6 +9718,7 @@
 \newcommand*{\footnotesinmargin}{\m@mfnmargintrue}
 \footnotesatfoot
 
+\@memfirstaid{footnote}{
 \renewcommand{\@footnotetext}[1]{%
   \ifm@mfnmargin%   use marginpar
     \marginpar{%
@@ -9804,6 +9748,7 @@
     \color@endgroup}%
   \fi%
   \m@mmf@prepare}
+}
 \let\@plainfootnotetext\@footnotetext
 
 \newcommand*{\sidefootmargin}[1]{%
@@ -12432,16 +12377,7 @@
 \fi
 \pagenumbering{arabic}
 
-% #tag restore the standard LaTeX footnote commands, which are redefined in
-% #tag memoir, just like the patch applied in latex-lab-footnotes with
-% #tag class hooks
-\ExplSyntaxOn
-    \cs_set_eq:NN  \@footnotemark \fnote_footnotemark:
-    \cs_set_eq:NN  \@makefntext\old@std@class@makefntext
-    \cs_set_eq:NN  \@makecol\new@std@class@makecol
-\ExplSyntaxOff
-% #tag end extra code
 
 \endinput
 %%
-%% End of file `memoir.cls'.
+%% End of file `memoir-tagging.cls'.

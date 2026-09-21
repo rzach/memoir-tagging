@@ -1,0 +1,52 @@
+\ProvidesPackage {memfirstaid-headings}
+
+% code to replace memoir's definitions of \part and \chapter
+% uses heading templates from latex-lab-sec-template.dtx; see
+% https://ctan.org/tex-archive/macros/latex-dev/required/latex-lab/latex-lab-sec-template.pdf
+
+\DeclareDocumentCommand \part {s ={shorttitle}o m}
+  { \ParseLaTeXeHeading {part} {#1} {#2} {#3} }
+\EditInstance{heading}{part}
+{
+  prefix = \printpartname
+, number-format = \thepart
+, heading-decls = \centering \parindent 0pt\partnamefont
+, number-decls = \partnumfont
+, title-decls = \parttitlefont
+, title-format = \printparttitle{#1}
+, headformat-instance = part
+, mark-cmd = \partmark{#1}
+, para-indent = false
+, start-code = \clearforchapter\thispagestyle{part}\ \vfil\@par
+, final-code = \vfil
+}
+\EditInstance{headformat}{part}
+{
+, heading-indent = 0pt
+, separator-b = \par\nobreak\vspace{2\onelineskip}
+, separator-a = \hspace{\WordSpaceAmount{1}}
+}
+
+\DeclareDocumentCommand \chapter {s ={shorttitle}o m}
+  { \ParseLaTeXeHeading {chapter} {#1} {#2} {#3} }
+\EditInstance{heading}{chapter}%{display}
+{
+  after-penalty-vspace = \beforechapskip
+, after-vspace = \afterchapskip
+, prefix = \printchaptername
+, number-format = \chapnumfont\thechapter
+, heading-decls = \raggedright \parindent 0pt\chapnamefont
+, number-decls = \chapnumfont
+, title-decls = \chaptitlefont
+, title-format = \printchaptertitle{#1}
+, mark-cmd = \chaptermark{#1}
+, para-indent = false
+, start-code = \clearforchapter\thispagestyle{chapter}
+, final-code = \memendofchapterhook
+}
+\EditInstance{headformat}{chapter}%{display}
+{
+, heading-indent = 0pt
+, separator-b = \par\nobreak\vspace{\midchapskip}
+, separator-a = \hspace{\WordSpaceAmount{1}}
+}

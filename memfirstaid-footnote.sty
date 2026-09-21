@@ -1,0 +1,9 @@
+\ProvidesPackage {memfirstaid-footnote}
+
+% This code restores LaTeX's own handling of footnotes. None of
+% memoir's footnote configurations are supported, of course.
+
+\ExplSyntaxOn
+    \cs_set_eq:NN  \@footnotemark \fnote_footnotemark:
+    \cs_set_eq:NN  \@makefntext\old@std@class@makefntext
+\ExplSyntaxOff

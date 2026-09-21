@@ -5,7 +5,6 @@
     pdfstandard=ua-2,
     tagging=on,
 %    debug={log={all}},
-     tagging-setup={math/setup=mathml-SE}
   }
 \documentclass{memoir-tagging}
 
@@ -13,11 +12,18 @@
 
 % VeraPDF will complain if document title is not set
 \hypersetup{pdftitle=Memoir Tagging Test, pdfdisplaydoctitle}
-
+\makeatletter
+  \renewcommand{\@tocmaketitle}{\chapter*{\contentsname}}
+\makeatother
 \begin{document}
+
 \tableofcontents
+
+\part{Some part}
 \chapter{Some chapter}
 \section{Some section}
 \subsection{Some subsection}
+
+Some text
 
 \end{document}
