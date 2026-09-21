@@ -57,7 +57,8 @@ in comments.
   the effect of `memoir`'s configuration commands as much as I could
   figure (e.g., use `\chaptitlefont`) so that chapter styles etc.
   still more or less work. More sophisticated chapter formats will
-  probably need their own templates.
+  probably need their own templates. This requries the most recent
+  versions of the heading templates, so `lualatex-dev`.
 - The code for `\book` is unchanged. Since `\book` is not a standard
   LaTeX command, no default command, templates, or tagging code are
   available to be edited; it would have to be done from scratch. This
