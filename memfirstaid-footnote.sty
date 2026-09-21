@@ -2,8 +2,14 @@
 
 % This code restores LaTeX's own handling of footnotes. None of
 % memoir's footnote configurations are supported, of course.
+% Note that LaTeX's own firstaid treatment for memoir is to reset the
+% definition of \@makefntext to the definition of the standard classes
+% (\@old@std@class@makefntext). This has the effect that hyperref
+% believes it's ok to patch it, and that results in undefined
+% Hfootnote errors. (I think! What's confusing is that hyperref should
+% turn off the patching altogether when \DocumentMetadata is present...)
 
 \ExplSyntaxOn
     \cs_set_eq:NN  \@footnotemark \fnote_footnotemark:
-    \cs_set_eq:NN  \@makefntext\old@std@class@makefntext
+    \cs_set_eq:NN \@makefntext \fnote_makefntext:n
 \ExplSyntaxOff

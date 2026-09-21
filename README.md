@@ -24,17 +24,21 @@ since `memoir` is very complex and redefines a lot of LaTeX internals.
 I've here tried to implement changes in `memoir` directly that add
 some tagging support while retaining the functionality of memoir. This
 is a stop-gap only to allow me to keep using `memoir`'s many layout
-features and still produce tagged PDFs. In the absence of a
-compatible official `memoir` class the long-term solution is probably
-to replace `memoir` with a compatible class and use compatible
-packages to do the work `memoir` now does. But who knows, maybe this
-is also the start of something. Feel free to propose fixes for
-`memoir`'s other incompatibilities or improvements to mine.
+features and still produce tagged PDFs. In the absence of a compatible
+official `memoir` class the long-term solution is probably to replace
+`memoir` with a compatible class and use compatible packages to do the
+work `memoir` now does. But who knows, maybe this is also the start of
+something. Feel free to propose fixes for `memoir`'s other
+incompatibilities or improvements to mine.
 
 `memoir-tagging.cls` is the [`memoir`
 class](https://ctan.org/pkg/memoir) (version 3.8.4b 2025-11-04) with
 minimal changes to improve tagging. The changes are marked by `#tag`
 in comments.
+
+If that all seems like too precarious and you don't mind changing your
+existing documents (or feel like you should) to enable tagging and
+PDF/UA-2, see below.
 
 ## Changes and caveats:
 
@@ -119,3 +123,44 @@ in comments.
 `memoir-XX-BAD.tex` are (edited) test files from the [tagging project test file
 collection](https://github.com/latex3/tagging-project/tree/main/tagging-status/testfiles-incompatible/memoir)
 
+## Alternatives to `memoir` and its features
+
+You may want to consider alternatives to `memoir` if you use `memoir`
+for things that are not easily fixable to work with tagging and are unlikey to be fixed
+soon. Here is a very incomplete list:
+
+- The easiest and most reliable alternative is the stock `book` class.
+- For setting page dimensions and layout, the `geometry` package can
+  do a lot of the same things that `memoir`'s options can. It is not
+  as convenient as `memoir` and doesn't provide as many presets (paper
+  sizes, layouts). It uses different terminology than `memoir`'s
+  (which uses traditional printer's and typesetter's terminology):
+  e.g., `geometry`'s paper = `memoir`'s trim, layout/body = page,
+  inner = spine, outer = edge, etc. However, `memoir` types out the
+  layout dimensions on every run (on the console only, not in the log)
+  and you could just use what `memoir` tells you there for `geometry`.
+- `memoir`'s many footnote configuration methods are also provided by
+  the [`footmisc`](https://ctan.org/pkg/footmisc) package, which is
+  fully compatible with tagging.
+- Changing the chapter and other heading styles can be done by editing
+  LaTeX's "heading templates" as done in
+  [`memfirstaid-headings.sty`](./memfirstaid-headings.sty). There is,
+  as far as I know, no compatible alternative package that provides
+  the functionalty of `memoir`'s `\makechapterstyle`.
+- Changing the layout of the table of contents and adding other "List
+  of ..." lists can be done with the (compatible)
+  [`tocloft`](https://ctan.org/pkg/tocloft) package.
+- Changing page styles (including heads and foots) or defining new
+  page styles can be done with the (compatible)
+  [`fancyhdr`](https://ctan.org/pkg/fancyhdr) package.
+- `memoir` provides lots of hooks in various of its commands; these
+  can largely be replaced by [LaTeX's own hook
+  management](https://www.latex-project.org/help/documentation/lthooks-doc.pdf).
+  E.g., instead of
+  ```
+  \renewcommand{\memendofchapterhook}{code}
+  ```
+  you can say
+  ```
+  \AddToHook{cmd/after/chapter}{code}
+  ```
