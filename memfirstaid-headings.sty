@@ -27,14 +27,17 @@
 , separator-a = \hspace{\WordSpaceAmount{1}}
 }
 
+
+\def\memnumberformat#1{\printchapternum}
+
 \DeclareDocumentCommand \chapter {s ={shorttitle}o m}
   { \ParseLaTeXeHeading {chapter} {#1} {#2} {#3} }
 \EditInstance{heading}{chapter}%{display}
 {
   after-penalty-vspace = \beforechapskip
-, after-vspace = \afterchapskip
+%, after-vspace = \afterchapskip
 , prefix = \printchaptername
-, number-format = \chapnumfont\thechapter
+, number-format = \printchapternum
 , heading-decls = \raggedright \parindent 0pt\chapnamefont
 , number-decls = \chapnumfont
 , title-decls = \chaptitlefont
@@ -42,7 +45,7 @@
 , mark-cmd = \chaptermark{#1}
 , para-indent = false
 , start-code = \clearforchapter\thispagestyle{chapter}
-, final-code = \memendofchapterhook
+, final-code = %\relax
 }
 \EditInstance{headformat}{chapter}%{display}
 {
